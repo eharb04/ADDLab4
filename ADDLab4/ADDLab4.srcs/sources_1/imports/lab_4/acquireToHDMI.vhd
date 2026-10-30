@@ -35,6 +35,34 @@ architecture behavior of acquireToHDMI is
     signal forcedMode: STD_LOGIC;
         	
 begin
+    
+    -- Datapath
+    dp : acquireToHDMI_datapath
+    PORT MAP ( clk => clk,
+               resetn => resetn,
+               cw => cw,
+               sw => sw,
+               an7606data => an7606data,
+               
+               triggerVolt16bitSigned => (others => '0'),
+               tiggerTimePixel => std_logic_vector(to_unsigned(640, 10)),
+               ch1Data16bitSLV => open,
+               ch2Data16bitSLV => open,
+               
+               tmdsDataP => tmdsDataP,
+               tmdsDataN => tmdsDataN,
+               tmdsClkP => tmdsClkP,
+               tmdsClkN => tmdsClkN,
+               hdmiOen => tmdsOen
+		   );
+		   
+    -- Control unit
+    cu : acquireToHDMI_fsm
+    PORT MAP (  clk => clk,
+                resetn => resetn,
+                sw => sw,
+                cw => cw
+              );
 
     conversionPlusReadoutTime <= cw(CONVERSION_PLUS_READOUT_CW_BIT_INDEX);
     sampleTimerRollover <= cw(SAMPLE_TIMER_ROLLOVER_CW_BIT_INDEX);
