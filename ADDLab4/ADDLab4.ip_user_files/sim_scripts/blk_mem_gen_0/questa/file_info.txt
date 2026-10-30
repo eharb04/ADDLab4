@@ -1,0 +1,3 @@
+blk_mem_gen_v8_4.v,verilog,blk_mem_gen_v8_4_13,../../../ipstatic/simulation/blk_mem_gen_v8_4.v,incdir="../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef"
+blk_mem_gen_0.v,verilog,xil_defaultlib,../../../../ADDLab4.gen/sources_1/ip/blk_mem_gen_0/sim/blk_mem_gen_0.v,incdir="../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef"
+glbl.v,Verilog,xil_defaultlib,glbl.v

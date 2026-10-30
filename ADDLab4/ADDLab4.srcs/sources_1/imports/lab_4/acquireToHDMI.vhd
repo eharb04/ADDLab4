@@ -3,7 +3,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use work.acquireToHDMI_package.all;					-- include your library here with added components ac97, ac97cmd
-use work.hdmi_package.all;
+use work.scopeToHdmi_package.all;
 use work.basicBuildingBlocks_package.all;					-- include your library here with added components ac97, ac97cmd
 
 
@@ -45,7 +45,7 @@ begin
                an7606data => an7606data,
                
                triggerVolt16bitSigned => (others => '0'),
-               tiggerTimePixel => std_logic_vector(to_unsigned(640, 10)),
+               triggerTimePixel => std_logic_vector(to_unsigned(640, 10)),
                ch1Data16bitSLV => open,
                ch2Data16bitSLV => open,
                

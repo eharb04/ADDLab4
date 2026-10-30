@@ -48,8 +48,8 @@ architecture behavior of acquireToHDMI_datapath is
 
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
     signal videoClk: STD_LOGIC;
-    signal triggerTime, triggerVolt: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
-    signal pixelHorz, pixelVert: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
+    signal triggerTime, triggerVolt: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal pixelHorz, pixelVert: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
     signal ch1Wave: STD_LOGIC;
     signal ch2Wave: STD_LOGIC;
     
@@ -66,15 +66,17 @@ architecture behavior of acquireToHDMI_datapath is
     signal SAMPLING_RATE_SELECT_CW: STD_LOGIC_VECTOR(1 downto 0);
     signal samplePeriod: STD_LOGIC_VECTOR(31 downto 0);
     
-    signal wrAddr: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
+    signal wrAddr: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
     
     signal SHORT_DELAY_DONE_SW, LONG_DELAY_DONE_SW, SAMPLE_SW, FULL_SW: STD_LOGIC;
     
+    signal DATA_STORAGE_CH1_WRITE_CW, DATA_STORAGE_CH2_WRITE_CW: STD_LOGIC_VECTOR(0 downto 0);
+    signal ch1RAMpixelVsigned, ch2RAMpixelVsigned: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
     signal ch1RAMpixelV, ch2RAMpixelV, pixelV: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
     signal ch1, ch2: STD_LOGIC;
     
-    signal DATA_STORAGE_CH1_WRITE_CW, DATA_STORAGE_CH2_WRITE_CW: STD_LOGIC;
     
+    signal TRIG_CH1_WRITE, TRIG_CH2_WRITE: STD_LOGIC;
     signal ch1Data16bitSLVold, ch1Data16bitSLVnew, ch2Data16bitSLVold, ch2Data16bitSLVnew: STD_LOGIC_VECTOR(15 downto 0);
     signal storeIntoBramFlag: STD_LOGIC;
     
@@ -84,40 +86,40 @@ architecture behavior of acquireToHDMI_datapath is
 begin
     sf: scopeFace
         PORT MAP (clk => videoClk,
-              resetn => resetn,
-              pixelHorz => pixelHorz,
-              pixelVert => pixelVert,
-              triggerVolt => triggerVolt,
-              triggerTime => triggerTime,
-              red => red,
-              green => green,
-              blue => blue,
-              ch1 => ch1Wave,
-              ch1Enb => '1',
-              ch2 => ch1Wave,
-              ch2Enb => '1');
+                  resetn => resetn,
+                  pixelHorz => pixelHorz,
+                  pixelVert => pixelVert,
+                  triggerVolt => triggerVolt,
+                  triggerTime => triggerTime,
+                  red => red,
+                  green => green,
+                  blue => blue,
+                  ch1 => ch1Wave,
+                  ch1Enb => '1',
+                  ch2 => ch1Wave,
+                  ch2Enb => '1');
 
     hdmi_inst: hdmi_tx_0
         PORT MAP (
-            pix_clk => videoClk,
-            pix_clkx5 => videoClk5x,
-            rst => reset,
-            hsync => hs,
-            vsync => vs,
-            vde => de,
-            pix_clk_locked => clkLocked,
-            red => red,
-            green => green,
-            blue => blue,
-            TMDS_DATA_P => tmdsDataP,
-            TMDS_DATA_N => tmdsDataN,
-            TMDS_CLK_P => tmdsClkP,
-            TMDS_CLK_N => tmdsClkN,
-            aux0_din => "0000",
-            aux1_din => "0000",
-            aux2_din => "0000",
-            ade => '0'
-            );
+                  pix_clk => videoClk,
+                  pix_clkx5 => videoClk5x,
+                  rst => reset,
+                  hsync => hs,
+                  vsync => vs,
+                  vde => de,
+                  pix_clk_locked => clkLocked,
+                  red => red,
+                  green => green,
+                  blue => blue,
+                  TMDS_DATA_P => tmdsDataP,
+                  TMDS_DATA_N => tmdsDataN,
+                  TMDS_CLK_P => tmdsClkP,
+                  TMDS_CLK_N => tmdsClkN,
+                  aux0_din => "0000",
+                  aux1_din => "0000",
+                  aux2_din => "0000",
+                  ade => '0'
+                  );
 
     vsg: videoSignalGenerator
         PORT MAP (clk => videoClk, 
@@ -127,6 +129,30 @@ begin
                   de => de,
                   pixelHorz => pixelHorz,
                   pixelVert => pixelVert);
+                  
+    ch1BRAM : blk_mem_gen_0
+        PORT MAP (clka => clk,
+                  ena => '1',
+                  wea => DATA_STORAGE_CH1_WRITE_CW,
+                  addra => wrAddr,
+                  dina => an7606data,
+                  clkb => videoClk,
+                  enb => '1',
+                  addrb => HEIGHT,
+                  doutb => ch1RAMpixelVsigned
+                  );
+                  
+    ch2BRAM : blk_mem_gen_0
+        PORT MAP (clka => clk,
+                  ena => '1',
+                  wea => DATA_STORAGE_CH2_WRITE_CW,
+                  addra => wrAddr,
+                  dina => an7606data,
+                  clkb => videoClk,
+                  enb => '1',
+                  addrb => HEIGHT,
+                  doutb => ch2RAMpixelVsigned
+                  );
                   
     shortCounter: genericCounter
         GENERIC MAP(SHORT_DELAY_50Mhz_CONST_WIDTH)
@@ -229,7 +255,7 @@ begin
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
                 resetn => resetn,
-                load => DATA_STORAGE_CH1_WRITE_CW,
+                load => TRIG_CH1_WRITE,
                 d => an7606data,
                 q => ch1Data16bitSLVold
                 );
@@ -238,7 +264,7 @@ begin
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
                 resetn => clk,
-                load => DATA_STORAGE_CH1_WRITE_CW,
+                load => TRIG_CH1_WRITE,
                 d => ch1Data16bitSLVold,
                 q => ch1Data16bitSLVnew
                 );
@@ -246,7 +272,7 @@ begin
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
                 resetn => resetn,
-                load => DATA_STORAGE_CH2_WRITE_CW,
+                load => TRIG_CH2_WRITE,
                 d => an7606data,
                 q => ch2Data16bitSLVold
                 );
@@ -255,7 +281,7 @@ begin
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
                 resetn => clk,
-                load => DATA_STORAGE_CH2_WRITE_CW,
+                load => TRIG_CH2_WRITE,
                 d => ch2Data16bitSLVold,
                 q => ch2Data16bitSLVnew
                 );
