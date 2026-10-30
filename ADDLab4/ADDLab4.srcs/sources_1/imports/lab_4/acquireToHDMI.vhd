@@ -1,6 +1,7 @@
 --//////////Top Level for signal Acquisition /////////////////////////////--
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use work.acquireToHDMI_package.all;					-- include your library here with added components ac97, ac97cmd
 use work.scopeToHdmi_package.all;
@@ -33,6 +34,7 @@ architecture behavior of acquireToHDMI is
     signal cw: STD_LOGIC_VECTOR(CW_WIDTH -1 downto 0);
     signal sw: STD_LOGIC_VECTOR(SW_WIDTH -1 downto 0);
     signal forcedMode: STD_LOGIC;
+    signal tmdsOen: STD_LOGIC;
         	
 begin
     
@@ -76,7 +78,7 @@ begin
 
     
     
-    sw(SINGLE_FORCED_TRIGGER_SW_BIT_INDEX) <= buttonActivity(0);
+    sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= buttonActivity(0);
     triggerCh2 <= sw(CH2_TRIGGER_SW_BIT_INDEX);
 
  	datapath_inst: acquireToHDMI_datapath 

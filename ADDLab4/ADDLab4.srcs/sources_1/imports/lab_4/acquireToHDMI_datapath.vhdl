@@ -22,7 +22,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 use work.acquireToHDMI_Package.all;			
-use work.basicBuildingBlocks_package.all;		
+use work.basicBuildingBlocks_package.all;
+use work.signedCompare;
 use work.scopeToHdmi_package.all;
 
 entity acquireToHDMI_datapath is
@@ -33,7 +34,7 @@ entity acquireToHDMI_datapath is
 		   an7606data: in STD_LOGIC_VECTOR(15 downto 0);
 
            triggerVolt16bitSigned: in SIGNED(15 downto 0);
-		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0);
+		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS-1 downto 0);
 		   ch1Data16bitSLV, ch2Data16bitSLV: out STD_LOGIC_VECTOR(15 downto 0);
 		   
 		   tmdsDataP : out  STD_LOGIC_VECTOR (2 downto 0);
@@ -79,6 +80,19 @@ architecture behavior of acquireToHDMI_datapath is
     signal TRIG_CH1_WRITE, TRIG_CH2_WRITE: STD_LOGIC;
     signal ch1Data16bitSLVold, ch1Data16bitSLVnew, ch2Data16bitSLVold, ch2Data16bitSLVnew: STD_LOGIC_VECTOR(15 downto 0);
     signal storeIntoBramFlag: STD_LOGIC;
+    
+    signal ch1TriggerOld, ch1TriggerNew, ch2TriggerOld, ch2TriggerNew: STD_LOGIC;
+    
+    component signedCompare is
+        generic (N : positive := 8);
+        port (
+            x  : in  std_logic_vector(N-1 downto 0);
+            y  : in  std_logic_vector(N-1 downto 0);
+            g : out std_logic;
+            e : out std_logic;
+            l : out std_logic
+        );
+    end component;
     
     
     
@@ -182,7 +196,7 @@ begin
                  );
     
     dataStorageCounter: genericCounter
-        GENERIC MAP(VIDEO_WIDTH_IN_BITS)
+        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
         PORT MAP(clk => clk,
                  resetn => resetn,
                  c => DATA_STORAGE_COUNTER_CW,
@@ -225,7 +239,7 @@ begin
                  );
                  
     dataStorageComp: genericCompare
-        GENERIC MAP(VIDEO_WIDTH_IN_BITS)
+        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
         PORT MAP(x => WIDTH,
                  y => wrAddr,
                  g => open,
@@ -249,7 +263,22 @@ begin
                  l => open,
                  e => ch2
                  );
-
+    ch1TriggerCompOld: signedCompare
+        GENERIC MAP(16)
+        PORT MAP(x => ch1Data16bitSLVold,
+                 y => trigVolt16Sign,
+                 g => ch1TriggerOld,
+                 l => open,
+                 e => open
+                 );
+    ch1TriggerCompNew: signedCompare
+        GENERIC MAP(16)
+        PORT MAP(x => ch1Data16bitSLVnew,
+                 y => trigVolt16Sign,
+                 g => open,
+                 l => ch1TriggerNew,
+                 e => open
+                 );
 
     ch1DataOldReg: genericRegister
         GENERIC MAP(16)
@@ -302,6 +331,9 @@ begin
     
     ch1Data16BitSLV <= ch1Data16BitSLVold;
     ch2Data16BitSLV <= ch1Data16BitSLVold;
+    
+    sw(CH1_TRIGGER_SW_BIT_INDEX) <= ch1TriggerOld and ch1TriggerNew;
+    sW(CH2_TRIGGER_SW_BIT_INDEX) <= ch2TriggerOld and ch2TriggerNew;
 
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
     
