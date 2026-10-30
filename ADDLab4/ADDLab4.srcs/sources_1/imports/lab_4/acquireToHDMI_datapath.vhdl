@@ -76,7 +76,7 @@ architecture behavior of acquireToHDMI_datapath is
     signal DATA_STORAGE_CH1_WRITE_CW, DATA_STORAGE_CH2_WRITE_CW: STD_LOGIC;
     
     signal ch1Data16bitSLVold, ch1Data16bitSLVnew, ch2Data16bitSLVold, ch2Data16bitSLVnew: STD_LOGIC_VECTOR(15 downto 0);
-    
+    signal storeIntoBramFlag: STD_LOGIC;
     
     
     
@@ -286,7 +286,8 @@ begin
             clk_in1 => clk,
             clk_out1 => videoClk,
             resetn => resetn,
-            clk_out2 => videoClk5x);
+            clk_out2 => videoClk5x
+            );
 
 
 
