@@ -317,6 +317,14 @@ begin
                  l => ch2TriggerNew,
                  e => open
                  );
+                 
+    vc: clk_wiz_0
+        PORT MAP (
+            clk_in1 => clk,
+            clk_out1 => videoClk,
+            resetn => resetn,
+            clk_out2 => videoClk5x
+            );
 
     -- Simple SR Latch to assist FSM
     process(clk)
@@ -341,16 +349,8 @@ begin
 
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
     
- 
-      
-    vc: clk_wiz_0
-        PORT MAP (
-            clk_in1 => clk,
-            clk_out1 => videoClk,
-            resetn => resetn,
-            clk_out2 => videoClk5x
-            );
-
-
+    -- set BRAM wea cw bit
+    DATA_STORAGE_CH1_WRITE_CW(0) <= cw(DATA_STORAGE_CH1_WRITE_CW_BIT_INDEX);
+    DATA_STORAGE_CH2_WRITE_CW(0) <= cw(DATA_STORAGE_CH2_WRITE_CW_BIT_INDEX);
 
 end behavior;
