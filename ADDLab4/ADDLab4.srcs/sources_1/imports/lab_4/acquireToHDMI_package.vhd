@@ -142,4 +142,15 @@ component blk_mem_gen_0 is
   );
 END component;
 
+component signedCompare is
+        generic (N : positive := 8);
+        port (
+            x  : in  std_logic_vector(N-1 downto 0);
+            y  : in  std_logic_vector(N-1 downto 0);
+            g : out std_logic;
+            e : out std_logic;
+            l : out std_logic
+        );
+end component;
+
 end package;
