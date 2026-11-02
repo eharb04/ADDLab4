@@ -34,7 +34,7 @@ entity acquireToHDMI_datapath is
 		   an7606data: in STD_LOGIC_VECTOR(15 downto 0);
 
            triggerVolt16bitSigned: in SIGNED(15 downto 0);
-		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS-1 downto 0);
+		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0);
 		   ch1Data16bitSLV, ch2Data16bitSLV: out STD_LOGIC_VECTOR(15 downto 0);
 		   
 		   tmdsDataP : out  STD_LOGIC_VECTOR (2 downto 0);
@@ -49,7 +49,7 @@ architecture behavior of acquireToHDMI_datapath is
 
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
     signal videoClk: STD_LOGIC;
-    signal triggerTime, triggerVolt: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal trigVscr: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
     signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared later
     signal ch1Wave: STD_LOGIC;
     signal ch2Wave: STD_LOGIC;
@@ -89,8 +89,8 @@ begin
                   resetn => resetn,
                   pixelHorz => pixelH,
                   pixelVert => pixelV,
-                  triggerVolt => triggerVolt,
-                  triggerTime => triggerTime,
+                  triggerVolt => trigVscr,
+                  triggerTime => triggerTimePixel,
                   red => red,
                   green => green,
                   blue => blue,
@@ -385,5 +385,16 @@ begin
     sw(LONG_DELAY_DONE_SW_BIT_INDEX) <= LONG_DELAY_DONE_SW;
     sw(SAMPLE_DELAY_DONE_SW_BIT_INDEX) <= SAMPLE_SW;
     sw(BRAM_FULL_SW_BIT_INDEX) <= FULL_SW;
+    
+    -- SgnToPixel
+    trigVscr <= std_logic_vector(
+        resize(
+            -shift_right(
+                signed(resize(unsigned(HEIGHT), 16)) * triggerVolt16bitSigned,
+                16
+            ) + to_signed(400, 32),
+            11
+        )
+    );
 
 end behavior;
