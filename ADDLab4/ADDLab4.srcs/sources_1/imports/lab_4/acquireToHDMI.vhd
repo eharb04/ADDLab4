@@ -33,6 +33,7 @@ architecture behavior of acquireToHDMI is
     signal cw: STD_LOGIC_VECTOR(CW_WIDTH -1 downto 0);
     signal sw: STD_LOGIC_VECTOR(SW_WIDTH -1 downto 0);
     signal forcedMode: STD_LOGIC;
+    signal btnCurr, btnPrev: STD_LOGIC_VECTOR(2 downto 0);
         	
 begin
     
@@ -73,7 +74,26 @@ begin
     ------------------------------------------------------------------------------
     -- Button Process
     ------------------------------------------------------------------------------
-
+    btnCurr <= btn;
+    --Pressing PL KEY3 (btn(1)) should toggle the oscilloscope between FORCED and TRIGGER mode.
+    --Pressing PL KEY4 (btn(0)) when the oscilloscope is in FORCED mode will cause the oscilloscope to trigger and fill its channel 1 and 2 BRAMs.
+    button_process: process(clk)  
+	begin
+		if (rising_edge(clk)) then
+			if (resetn = '0') then 
+				btnPrev <= "000";
+		    else
+		    
+		    if (btnCurr = '1' and btnPrev = '0') then --btn release
+		      sw(START_CONV_SW_BIT_INDEX) <= '1';
+		    else
+		      sw(START_CONV_SW_BIT_INDEX) <= '0';
+		    end if;
+		    
+			btnPrev <= btnCurr;
+			end if;
+	    end if;
+	end process;
     
     
     sw(SINGLE_FORCED_TRIGGER_SW_BIT_INDEX) <= buttonActivity(0);
