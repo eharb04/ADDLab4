@@ -345,10 +345,11 @@ begin
                  
     vc: clk_wiz_0
         PORT MAP (
-            clk_in1 => clk,
             clk_out1 => videoClk,
+            clk_out2 => videoClk5x,
             resetn => resetn,
-            clk_out2 => videoClk5x
+            locked => clkLocked,
+            clk_in1 => clk
             );
 
     -- Simple SR Latch to assist FSM
