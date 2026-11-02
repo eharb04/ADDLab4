@@ -153,4 +153,14 @@ component signedCompare is
         );
 end component;
 
+component twosToPixel is
+    generic (N : positive := 16);
+    port (
+        x         : in  std_logic_vector(N-1 downto 0);
+        height    : in  std_logic_vector(N-1 downto 0);
+        b         : in  std_logic_vector(N-1 downto 0);
+        pixel_SLV : out std_logic_vector(9 downto 0)
+    );
+end component twosToPixel;
+
 end package;
