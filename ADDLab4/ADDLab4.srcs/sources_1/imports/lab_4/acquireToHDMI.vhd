@@ -34,7 +34,6 @@ architecture behavior of acquireToHDMI is
     signal cw: STD_LOGIC_VECTOR(CW_WIDTH -1 downto 0);
     signal sw: STD_LOGIC_VECTOR(SW_WIDTH -1 downto 0);
     signal forcedMode: STD_LOGIC;
-    signal tmdsOen: STD_LOGIC;
         	
 begin
     
@@ -55,7 +54,7 @@ begin
                tmdsDataN => tmdsDataN,
                tmdsClkP => tmdsClkP,
                tmdsClkN => tmdsClkN,
-               hdmiOen => tmdsOen
+               hdmiOen => hdmiOen
 		   );
 		   
     -- Control unit
@@ -79,17 +78,8 @@ begin
     
     
     sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= buttonActivity(0);
+    triggerCh1 <= sw(CH1_TRIGGER_SW_BIT_INDEX);
     triggerCh2 <= sw(CH2_TRIGGER_SW_BIT_INDEX);
 
- 	datapath_inst: acquireToHDMI_datapath 
-            ch1Data16bitSLV => open,
-	);
-                
-	control_inst: acquireToHDMI_fsm 
-	   PORT MAP ( 
-            clk => clk,
-            resetn => resetn,
-            sw => sw,
-            cw => cw);
 
 end behavior;

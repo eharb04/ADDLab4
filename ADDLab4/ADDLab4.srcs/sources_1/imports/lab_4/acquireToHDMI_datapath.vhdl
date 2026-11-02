@@ -34,7 +34,7 @@ entity acquireToHDMI_datapath is
 		   an7606data: in STD_LOGIC_VECTOR(15 downto 0);
 
            triggerVolt16bitSigned: in SIGNED(15 downto 0);
-		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS-1 downto 0);
+		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0);
 		   ch1Data16bitSLV, ch2Data16bitSLV: out STD_LOGIC_VECTOR(15 downto 0);
 		   
 		   tmdsDataP : out  STD_LOGIC_VECTOR (2 downto 0);
@@ -49,8 +49,8 @@ architecture behavior of acquireToHDMI_datapath is
 
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
     signal videoClk: STD_LOGIC;
-    signal triggerTime, triggerVolt: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
-    signal pixelHorz, pixelVert: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal trigVscr: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
+    signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared later
     signal ch1Wave: STD_LOGIC;
     signal ch2Wave: STD_LOGIC;
     
@@ -83,28 +83,14 @@ architecture behavior of acquireToHDMI_datapath is
     
     signal ch1TriggerOld, ch1TriggerNew, ch2TriggerOld, ch2TriggerNew: STD_LOGIC;
     
-    component signedCompare is
-        generic (N : positive := 8);
-        port (
-            x  : in  std_logic_vector(N-1 downto 0);
-            y  : in  std_logic_vector(N-1 downto 0);
-            g : out std_logic;
-            e : out std_logic;
-            l : out std_logic
-        );
-    end component;
-    
-    
-    
-    
 begin
     sf: scopeFace
         PORT MAP (clk => videoClk,
                   resetn => resetn,
-                  pixelHorz => pixelHorz,
-                  pixelVert => pixelVert,
-                  triggerVolt => triggerVolt,
-                  triggerTime => triggerTime,
+                  pixelHorz => pixelH,
+                  pixelVert => pixelV,
+                  triggerVolt => trigVscr,
+                  triggerTime => triggerTimePixel,
                   red => red,
                   green => green,
                   blue => blue,
@@ -141,8 +127,9 @@ begin
                   hs => hs,
                   vs => vs,
                   de => de,
-                  pixelHorz => pixelHorz,
-                  pixelVert => pixelVert);
+                  pixelHorz => pixelH,
+                  pixelVert => pixelV
+                  );
                   
     ch1BRAM : blk_mem_gen_0
         PORT MAP (clka => clk,
@@ -152,7 +139,7 @@ begin
                   dina => an7606data,
                   clkb => videoClk,
                   enb => '1',
-                  addrb => HEIGHT,
+                  addrb => HEIGHT, --????
                   doutb => ch1RAMpixelVsigned
                   );
                   
@@ -164,7 +151,7 @@ begin
                   dina => an7606data,
                   clkb => videoClk,
                   enb => '1',
-                  addrb => HEIGHT,
+                  addrb => HEIGHT, --?????
                   doutb => ch2RAMpixelVsigned
                   );
                   
@@ -194,15 +181,6 @@ begin
                  d => (others => '0'),
                  q => sampleCount
                  );
-    
-    dataStorageCounter: genericCounter
-        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
-        PORT MAP(clk => clk,
-                 resetn => resetn,
-                 c => DATA_STORAGE_COUNTER_CW,
-                 d => (others => '0'),
-                 q => wrAddr
-                 );
                  
     sampleMux: genericMux4x1
         GENERIC MAP(32)
@@ -213,6 +191,16 @@ begin
                  s => SAMPLING_RATE_SELECT_CW,
                  f => samplePeriod
                  );
+    
+    dataStorageCounter: genericCounter
+        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
+        PORT MAP(clk => clk,
+                 resetn => resetn,
+                 c => DATA_STORAGE_COUNTER_CW,
+                 d => (others => '0'),
+                 q => wrAddr
+                 );
+                 
 	shortComp: genericCompare
         GENERIC MAP(SHORT_DELAY_50Mhz_CONST_WIDTH)
         PORT MAP(x => shortCount,
@@ -246,6 +234,29 @@ begin
                  l => open,
                  e => FULL_SW
                  );
+                 
+    ch1TwosToPixel : twosToPixel
+        GENERIC MAP(16)
+        PORT MAP(x => ch1RAMpixelVsigned,
+                 height => std_logic_vector(resize(unsigned(HEIGHT), 16)), -- (-600)/(2^16-1)
+                 b => std_logic_vector(
+                          resize(shift_right(unsigned(HEIGHT), 1), 16) +
+                          resize(unsigned(T_EDGE), 16)
+                      ), -- HEIGHT/2 + 100
+                 pixel_SLV => ch1RAMpixelV
+                 );
+                 
+    ch2TwosToPixel : twosToPixel
+        GENERIC MAP(16)
+        PORT MAP(x => ch2RAMpixelVsigned,
+                 height => std_logic_vector(resize(unsigned(HEIGHT), 16)), -- (-600)/(2^16-1)
+                 b => std_logic_vector(
+                          resize(shift_right(unsigned(HEIGHT), 1), 16) +
+                          resize(unsigned(T_EDGE), 16)
+                      ), -- HEIGHT/2 + 100
+                 pixel_SLV => ch2RAMpixelV
+                 );
+                 
     ch1PixelComp: genericCompare
         GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
         PORT MAP(x => ch1RAMpixelV,
@@ -331,6 +342,14 @@ begin
                  l => ch2TriggerNew,
                  e => open
                  );
+                 
+    vc: clk_wiz_0
+        PORT MAP (
+            clk_in1 => clk,
+            clk_out1 => videoClk,
+            resetn => resetn,
+            clk_out2 => videoClk5x
+            );
 
     -- Simple SR Latch to assist FSM
     process(clk)
@@ -346,6 +365,7 @@ begin
         end if;
     end process;
     
+    -- Set output vectors
     ch1Data16BitSLV <= ch1Data16BitSLVold;
     ch2Data16BitSLV <= ch1Data16BitSLVold;
     
@@ -353,18 +373,28 @@ begin
     sw(CH1_TRIGGER_SW_BIT_INDEX) <= ch1TriggerOld and ch1TriggerNew;
     sw(CH2_TRIGGER_SW_BIT_INDEX) <= ch2TriggerOld and ch2TriggerNew;
 
+    -- STORE flag set
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
     
- 
-      
-    vc: clk_wiz_0
-        PORT MAP (
-            clk_in1 => clk,
-            clk_out1 => videoClk,
-            resetn => resetn,
-            clk_out2 => videoClk5x
-            );
-
-
+    -- set BRAM wea cw bit
+    DATA_STORAGE_CH1_WRITE_CW(0) <= cw(DATA_STORAGE_CH1_WRITE_CW_BIT_INDEX);
+    DATA_STORAGE_CH2_WRITE_CW(0) <= cw(DATA_STORAGE_CH2_WRITE_CW_BIT_INDEX);
+    
+    -- set sw bits
+    sw(SHORT_DELAY_DONE_SW_BIT_INDEX) <= SHORT_DELAY_DONE_SW;
+    sw(LONG_DELAY_DONE_SW_BIT_INDEX) <= LONG_DELAY_DONE_SW;
+    sw(SAMPLE_DELAY_DONE_SW_BIT_INDEX) <= SAMPLE_SW;
+    sw(BRAM_FULL_SW_BIT_INDEX) <= FULL_SW;
+    
+    -- SgnToPixel
+    trigVscr <= std_logic_vector(
+        resize(
+            -shift_right(
+                signed(resize(unsigned(HEIGHT), 16)) * triggerVolt16bitSigned,
+                16
+            ) + to_signed(400, 32),
+            11
+        )
+    );
 
 end behavior;
