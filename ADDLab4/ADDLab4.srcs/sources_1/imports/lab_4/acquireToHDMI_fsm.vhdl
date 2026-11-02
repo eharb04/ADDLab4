@@ -33,9 +33,12 @@ architecture Behavioral of acquireToHDMI_fsm is
 
 	signal state: state_type;	-- define the state_type in your package file	
 	signal SHORT_DELAY_DONE_SW, LONG_DELAY_DONE_SW, SAMPLE_DELAY_DONE_SW: STD_LOGIC;
+	signal TRIGGER_EVENT_SW: STD_LOGIC;
 	signal BRAM_FULL_SW: STD_LOGIC;
-    signal FORCED_MODE_SW, SINGLE_TRIGGER_SW: STD_LOGIC;
-    signal STORE_INTO_BRAM_SW, CH1_TRIGGER_SW, CH2_TRIGGER_SW: STD_LOGIC;
+    signal FORCED_MODE_SW: STD_LOGIC;
+    signal SINGLE_TRIGGER_SW: STD_LOGIC;
+    signal STORE_INTO_BRAM_SW: STD_LOGIC;
+    signal CH1_TRIGGER_SW, CH2_TRIGGER_SW: STD_LOGIC;
     signal BUSY_SW: STD_LOGIC;
 begin
     
@@ -43,6 +46,7 @@ begin
     SHORT_DELAY_DONE_SW  <= sw(SHORT_DELAY_DONE_SW_BIT_INDEX);
     LONG_DELAY_DONE_SW   <= sw(LONG_DELAY_DONE_SW_BIT_INDEX);
     SAMPLE_DELAY_DONE_SW <= sw(SAMPLE_DELAY_DONE_SW_BIT_INDEX);
+    TRIGGER_EVENT_SW     <= sw(TRIGGER_EVENT_SW_BIT_INDEX);
     BRAM_FULL_SW         <= sw(BRAM_FULL_SW_BIT_INDEX);
     FORCED_MODE_SW       <= sw(FORCED_MODE_SW_BIT_INDEX);
     SINGLE_TRIGGER_SW     <= sw(SINGLE_TRIGGER_SW_BIT_INDEX);
@@ -103,6 +107,62 @@ begin
 				    when BUSY_1_STATE =>
 				        if (BUSY_SW = '0') then
 				            state <= READ_CH1_LOW_STATE;
+				        end if;
+				        
+				    when READ_CH1_LOW_STATE =>
+				        if (STORE_INTO_BRAM_SW = '0') then
+				            state <= WRITE_CH1_TRIGGER_STATE;
+				        else
+				            state <= WRITE_CH1_BRAM_STATE;
+				        end if;
+				        
+				    when WRITE_CH1_TRIGGER_STATE =>
+				        state <= READ_CH1_HIGH_STATE;
+				        
+				    when WRITE_CH1_BRAM_STATE =>
+				        state <= READ_CH1_HIGH_STATE;
+				        
+				    when READ_CH1_HIGH_STATE =>
+				        state <= RESET_SHORT_STATE;
+				        
+				    when RESET_SHORT_STATE =>
+				        state <= READ_CH2_LOW_STATE;
+				        
+				    when READ_CH2_LOW_STATE =>
+				        if (STORE_INTO_BRAM_SW = '0') then
+				            state <= WRITE_CH2_TRIGGER_STATE;
+				        else
+				            state <= WRITE_CH2_BRAM_STATE;
+				        end if;
+				        
+				    when WRITE_CH2_TRIGGER_STATE =>
+				        state <= READ_CH2_HIGH_STATE;
+				        
+				    when WRITE_CH2_BRAM_STATE =>
+				        state <= READ_CH2_HIGH_STATE;
+				        
+				    when READ_CH2_HIGH_STATE =>
+				        state <= WAIT_SAMPLE_STATE;
+				        
+				    when WAIT_SAMPLE_STATE =>
+				        if (SAMPLE_DELAY_DONE_SW = '0') then --wait for sample interval to be done
+				            state <= WAIT_SAMPLE_STATE;
+				        end if;
+				        
+				        if (BRAM_FULL_SW = '1') then --BRAM is full
+				            if (FORCED_MODE_SW = '1') then --forced mode on
+				                state <= WAIT_FORCED_STATE;
+				            else                           --trigger mode
+				                state <= CLEAR_STORE_FLAG_STATE;
+				            end if;
+				        elsif (FORCED_MODE_SW = '1') then --BRAM not full and in forced then
+				            state <= BEGIN_CONVERSION_STATE;
+				        elsif (TRIGGER_EVENT_SW = '0' AND STORE_INTO_BRAM_SW = '0') then --trigger mode, not a trigger event, not storing data
+				            state <= BEGIN_CONVERSION_STATE;
+				        elsif (STORE_INTO_BRAM_SW = '1') then --trigger mode, already storing data
+				            state <= BEGIN_CONVERSION_STATE;
+				        elsif (TRIGGER_EVENT_SW = '1' AND STORE_INTO_BRAM_SW = '0') then --trigger mode, trigger event, not already storing data
+				            state <= SET_STORE_FLAG_STATE;
 				        end if;
 						  
 				end case;
