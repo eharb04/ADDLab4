@@ -266,7 +266,7 @@ begin
     ch1TriggerCompOld: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch1Data16bitSLVold,
-                 y => trigVolt16Sign,
+                 y => triggerVolt16bitSigned,
                  g => ch1TriggerOld,
                  l => open,
                  e => open
@@ -274,7 +274,7 @@ begin
     ch1TriggerCompNew: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch1Data16bitSLVnew,
-                 y => trigVolt16Sign,
+                 y => triggerVolt16bitSigned,
                  g => open,
                  l => ch1TriggerNew,
                  e => open
@@ -314,6 +314,23 @@ begin
                 d => ch2Data16bitSLVold,
                 q => ch2Data16bitSLVnew
                 );
+                
+    ch2TriggerCompOld: signedCompare
+        GENERIC MAP(16)
+        PORT MAP(x => ch2Data16bitSLVold,
+                 y => triggerVolt16bitSigned,
+                 g => ch2TriggerOld,
+                 l => open,
+                 e => open
+                 );
+    ch2TriggerCompNew: signedCompare
+        GENERIC MAP(16)
+        PORT MAP(x => ch2Data16bitSLVnew,
+                 y => triggerVolt16bitSigned,
+                 g => open,
+                 l => ch2TriggerNew,
+                 e => open
+                 );
 
     -- Simple SR Latch to assist FSM
     process(clk)
@@ -332,8 +349,9 @@ begin
     ch1Data16BitSLV <= ch1Data16BitSLVold;
     ch2Data16BitSLV <= ch1Data16BitSLVold;
     
+    -- trigger sw AND gate
     sw(CH1_TRIGGER_SW_BIT_INDEX) <= ch1TriggerOld and ch1TriggerNew;
-    sW(CH2_TRIGGER_SW_BIT_INDEX) <= ch2TriggerOld and ch2TriggerNew;
+    sw(CH2_TRIGGER_SW_BIT_INDEX) <= ch2TriggerOld and ch2TriggerNew;
 
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
     
