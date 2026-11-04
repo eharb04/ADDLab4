@@ -47,7 +47,7 @@ begin
                an7606data => an7606data,
                
                triggerVolt16bitSigned => (others => '0'),
-               triggerTimePixel => std_logic_vector(to_unsigned(640, 10)),
+               triggerTimePixel => std_logic_vector(to_unsigned(640, 11)),
                ch1Data16bitSLV => open,
                ch2Data16bitSLV => open,
                
@@ -100,6 +100,8 @@ begin
                   if (forcedMode = '1') then -- in forcedMode
                       sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= '1'; -- set SINGLE
                   end if;
+                else
+                    sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= '0'; -- reset SINGLE
                 end if;
                 
                 if (btnCurr(1) = '1' and btnPrev(1) = '0') then -- btn release

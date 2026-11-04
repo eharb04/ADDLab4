@@ -5,7 +5,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use work.hdmi_package.all;
+--use work.hdmi_package.all;
+use work.scopeToHdmi_package.all;
 
 
 package acquireToHDMI_package is
@@ -19,12 +20,13 @@ type state_type is (RESET_STATE, LONG_DELAY_STATE, RESET_AD7606_STATE, WAIT_FORC
                     CLEAR_STORE_FLAG_STATE, BEGIN_CONVERSION_STATE, ASSERT_CONVST_STATE, BUSY_0_STATE, BUSY_1_STATE, 
                     READ_CH1_LOW_STATE, WRITE_CH1_TRIGGER_STATE, WRITE_CH1_BRAM_STATE, READ_CH1_HIGH_STATE, 
                     RESET_SHORT_STATE, READ_CH2_LOW_STATE, WRITE_CH2_TRIGGER_STATE, WRITE_CH2_BRAM_STATE, 
-		    READ_CH2_HIGH_STATE, WAIT_SAMPLE_STATE, BRAM_FULL_STATE);
+		    -- READ_CH2_HIGH_STATE, WAIT_SAMPLE_STATE, BRAM_FULL_STATE);
+		    READ_CH2_HIGH_STATE, WAIT_SAMPLE_STATE); -- Got rid of unnecessary BRAM_FULL_STATE
 
 
 ---------------------------- CONTROL WORD -----------------------------
 CONSTANT CW_WIDTH : NATURAL := 22;
-CONSTANT CONTROL_CW_WIDTH : NATURAL := 14; --?????
+CONSTANT CONTROL_CW_WIDTH : NATURAL := 14; --unused
 
 CONSTANT SHORT_DELAY_COUNTER_CW_BIT_INDEX : NATURAL := 0;
 CONSTANT LONG_DELAY_COUNTER_CW_BIT_INDEX : NATURAL := 2;
@@ -74,7 +76,7 @@ component acquireToHDMI_fsm is
     PORT (  clk : in  STD_LOGIC;
             resetn : in  STD_LOGIC;
             sw: in STD_LOGIC_VECTOR(SW_WIDTH - 1 downto 0);
-            cw: out STD_LOGIC_VECTOR (CONTROL_CW_WIDTH - 1 downto 0)
+            cw: out STD_LOGIC_VECTOR (CW_WIDTH - 1 downto 0)
     );
 end component;
 

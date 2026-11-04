@@ -91,6 +91,9 @@ begin
 				    when SET_STORE_FLAG_STATE =>
 				        state <= BEGIN_CONVERSION_STATE;
 				        
+				    when CLEAR_STORE_FLAG_STATE =>
+				        state <= BEGIN_CONVERSION_STATE; 
+				        
 				    when BEGIN_CONVERSION_STATE =>
 				        state <= ASSERT_CONVST_STATE;
 				        
@@ -172,6 +175,9 @@ begin
 				        elsif (TRIGGER_EVENT_SW = '1' AND STORE_INTO_BRAM_SW = '0') then --trigger mode, trigger event, not already storing data
 				            state <= SET_STORE_FLAG_STATE;
 				        end if;
+				        
+--				    when BRAM_FULL_STATE => -- NOT SURE WHAT TO DO IN THIS STATE OR HOW THIS STATE IS REACHED
+--				        state <= BRAM_FULL_STATE;
 						  
 				end case;
 			end if;
@@ -204,7 +210,7 @@ begin
             when WRITE_CH2_BRAM_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&'1'&'1'&'0'&'0'&"10"&"10"&"00"&"00"&"11";
             when READ_CH2_HIGH_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"10";
             when WAIT_SAMPLE_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'1'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"10"&"00"&"00"&"00";
-            when BRAM_FULL_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
+--            when BRAM_FULL_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
 
 		end case;
 	end process;	                       
