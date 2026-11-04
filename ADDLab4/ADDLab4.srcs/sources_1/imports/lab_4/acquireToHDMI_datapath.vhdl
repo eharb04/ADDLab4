@@ -29,12 +29,12 @@ use work.scopeToHdmi_package.all;
 entity acquireToHDMI_datapath is
     PORT ( clk : in  STD_LOGIC;
            resetn : in  STD_LOGIC;
-		   cw : in STD_LOGIC_VECTOR(CW_WIDTH -1 downto 0);
+		   cw : in STD_LOGIC_VECTOR(CW_WIDTH - 1 downto 0);
 		   sw : out STD_LOGIC_VECTOR(DATAPATH_SW_WIDTH - 1 downto 0);
 		   an7606data: in STD_LOGIC_VECTOR(15 downto 0);
 
            triggerVolt16bitSigned: in SIGNED(15 downto 0);
-		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0);
+		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS-1 downto 0); --WHY 10 BITS
 		   ch1Data16bitSLV, ch2Data16bitSLV: out STD_LOGIC_VECTOR(15 downto 0);
 		   
 		   tmdsDataP : out  STD_LOGIC_VECTOR (2 downto 0);
@@ -50,7 +50,7 @@ architecture behavior of acquireToHDMI_datapath is
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
     signal videoClk: STD_LOGIC;
     signal trigVscr: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
-    signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared later
+    signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared below
     signal ch1Wave: STD_LOGIC;
     signal ch2Wave: STD_LOGIC;
     
@@ -258,7 +258,7 @@ begin
                  );
                  
     ch1PixelComp: genericCompare
-        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
+        GENERIC MAP(VIDEO_WIDTH_IN_BITS)
         PORT MAP(x => ch1RAMpixelV,
                  y => pixelV,
                  g => open,
@@ -267,7 +267,7 @@ begin
                  );
                  
     ch2PixelComp: genericCompare
-        GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
+        GENERIC MAP(VIDEO_WIDTH_IN_BITS)
         PORT MAP(x => ch2RAMpixelV,
                  y => pixelV,
                  g => open,

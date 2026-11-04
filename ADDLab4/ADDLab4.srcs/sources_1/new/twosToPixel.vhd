@@ -30,13 +30,14 @@ entity twosToPixel is
         x   : in  std_logic_vector(N-1 downto 0);
         height   : in  std_logic_vector(N-1 downto 0);
         b   : in std_logic_vector(N-1 downto 0);
-        pixel_SLV : out STD_LOGIC_VECTOR(9 downto 0)
+        pixel_SLV : out STD_LOGIC_VECTOR(10 downto 0)
     );
 end entity twosToPixel;
 
 architecture behavior of twosToPixel is
-    signal a_SIGNED16, b_SIGNED16, pixel_SIGNED16: SIGNED(N-1 downto 0);
+    signal a_SIGNED16, b_SIGNED16: SIGNED(N-1 downto 0);
     signal x_SIGNED32, y_SIGNED32, z_SIGNED32: SIGNED(2*N-1 downto 0);
+    pixel_SIGNED16: SIGNED(10 downto 0);
 begin
 
     a_SIGNED16 <= signed(x);
@@ -45,7 +46,7 @@ begin
     y_SIGNED32 <= SHIFT_RIGHT(x_SIGNED32, N);
 	z_SIGNED32 <= y_SIGNED32 + resize(signed(b), 2*N);
 	
-    pixel_SIGNED16 <= z_SIGNED32(9 downto 0); --VIDEO_HEIGHT_IN_BITS-1 lenght
+    pixel_SIGNED16 <= z_SIGNED32(15 downto 5); --VIDEO_HEIGHT_IN_BITS-1 lenght
     pixel_SLV <= std_logic_vector(pixel_SIGNED16);
 
 end architecture behavior;
