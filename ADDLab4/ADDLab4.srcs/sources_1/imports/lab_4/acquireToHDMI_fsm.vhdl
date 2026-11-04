@@ -33,27 +33,27 @@ architecture Behavioral of acquireToHDMI_fsm is
 
 	signal state: state_type;	-- define the state_type in your package file	
 	signal SHORT_DELAY_DONE_SW, LONG_DELAY_DONE_SW, SAMPLE_DELAY_DONE_SW: STD_LOGIC;
+	signal STORE_INTO_BRAM_SW: STD_LOGIC;
 	signal TRIGGER_EVENT_SW: STD_LOGIC;
 	signal BRAM_FULL_SW: STD_LOGIC;
-    signal FORCED_MODE_SW: STD_LOGIC;
+--    signal CH1_TRIGGER_SW, CH2_TRIGGER_SW: STD_LOGIC;
     signal SINGLE_TRIGGER_SW: STD_LOGIC;
-    signal STORE_INTO_BRAM_SW: STD_LOGIC;
-    signal CH1_TRIGGER_SW, CH2_TRIGGER_SW: STD_LOGIC;
     signal BUSY_SW: STD_LOGIC;
+    signal FORCED_MODE_SW: STD_LOGIC;
 begin
     
     
     SHORT_DELAY_DONE_SW  <= sw(SHORT_DELAY_DONE_SW_BIT_INDEX);
     LONG_DELAY_DONE_SW   <= sw(LONG_DELAY_DONE_SW_BIT_INDEX);
     SAMPLE_DELAY_DONE_SW <= sw(SAMPLE_DELAY_DONE_SW_BIT_INDEX);
-    TRIGGER_EVENT_SW     <= sw(TRIGGER_EVENT_SW_BIT_INDEX);
-    BRAM_FULL_SW         <= sw(BRAM_FULL_SW_BIT_INDEX);
-    FORCED_MODE_SW       <= sw(FORCED_MODE_SW_BIT_INDEX);
-    SINGLE_TRIGGER_SW     <= sw(SINGLE_TRIGGER_SW_BIT_INDEX);
     STORE_INTO_BRAM_SW   <= sw(STORE_INTO_BRAM_SW_BIT_INDEX);
-    CH1_TRIGGER_SW       <= sw(CH1_TRIGGER_SW_BIT_INDEX);
-    CH2_TRIGGER_SW       <= sw(CH2_TRIGGER_SW_BIT_INDEX);
+    TRIGGER_EVENT_SW     <= sw(CH1_TRIGGER_SW_BIT_INDEX); --TRIGGER only from Ch1
+    BRAM_FULL_SW         <= sw(BRAM_FULL_SW_BIT_INDEX);
+--    CH1_TRIGGER_SW       <= sw(CH1_TRIGGER_SW_BIT_INDEX);
+--    CH2_TRIGGER_SW       <= sw(CH2_TRIGGER_SW_BIT_INDEX);
+    SINGLE_TRIGGER_SW     <= sw(SINGLE_TRIGGER_SW_BIT_INDEX);
     BUSY_SW              <= sw(BUSY_SW_BIT_INDEX);
+    FORCED_MODE_SW       <= sw(FORCED_MODE_SW_BIT_INDEX);
     
 	-------------------------------------------------------------------------------
 	-------------------------------------------------------------------------------
@@ -91,6 +91,9 @@ begin
 				    when SET_STORE_FLAG_STATE =>
 				        state <= BEGIN_CONVERSION_STATE;
 				        
+				    when CLEAR_STORE_FLAG_STATE =>
+				        state <= BEGIN_CONVERSION_STATE; 
+				        
 				    when BEGIN_CONVERSION_STATE =>
 				        state <= ASSERT_CONVST_STATE;
 				        
@@ -110,7 +113,9 @@ begin
 				        end if;
 				        
 				    when READ_CH1_LOW_STATE =>
-				        if (STORE_INTO_BRAM_SW = '0') then
+				        if (SHORT_DELAY_DONE_SW = '0') then --wait for short timer
+				            state <= READ_CH1_LOW_STATE;
+				        elsif (STORE_INTO_BRAM_SW = '0') then --short timer done
 				            state <= WRITE_CH1_TRIGGER_STATE;
 				        else
 				            state <= WRITE_CH1_BRAM_STATE;
@@ -123,13 +128,17 @@ begin
 				        state <= READ_CH1_HIGH_STATE;
 				        
 				    when READ_CH1_HIGH_STATE =>
-				        state <= RESET_SHORT_STATE;
+				        if (SHORT_DELAY_DONE_SW = '1') then --wait for short timer
+				            state <= RESET_SHORT_STATE;
+				        end if;
 				        
 				    when RESET_SHORT_STATE =>
 				        state <= READ_CH2_LOW_STATE;
 				        
 				    when READ_CH2_LOW_STATE =>
-				        if (STORE_INTO_BRAM_SW = '0') then
+				        if (SHORT_DELAY_DONE_SW = '0') then --wait for short timer
+				            state <= READ_CH2_LOW_STATE;
+				        elsif (STORE_INTO_BRAM_SW = '0') then --short timer done
 				            state <= WRITE_CH2_TRIGGER_STATE;
 				        else
 				            state <= WRITE_CH2_BRAM_STATE;
@@ -142,7 +151,9 @@ begin
 				        state <= READ_CH2_HIGH_STATE;
 				        
 				    when READ_CH2_HIGH_STATE =>
-				        state <= WAIT_SAMPLE_STATE;
+				        if (SHORT_DELAY_DONE_SW = '1') then --wait for short timer
+				            state <= WAIT_SAMPLE_STATE;
+				        end if;
 				        
 				    when WAIT_SAMPLE_STATE =>
 				        if (SAMPLE_DELAY_DONE_SW = '0') then --wait for sample interval to be done
@@ -164,6 +175,9 @@ begin
 				        elsif (TRIGGER_EVENT_SW = '1' AND STORE_INTO_BRAM_SW = '0') then --trigger mode, trigger event, not already storing data
 				            state <= SET_STORE_FLAG_STATE;
 				        end if;
+				        
+--				    when BRAM_FULL_STATE => -- NOT SURE WHAT TO DO IN THIS STATE OR HOW THIS STATE IS REACHED
+--				        state <= BRAM_FULL_STATE;
 						  
 				end case;
 			end if;
@@ -176,26 +190,27 @@ begin
 	output_process: process (state)
 	begin
 		case state is		
-            when RESET_STATE  =>  cw <= '1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&"11"&"11"&"0"&"11"&"11";
-            when LONG_DELAY_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"0"&"0"&"10"&"0";
-            when RESET_AD7606_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&"0"&"0"&"0"&"11"&"0";
-            when WAIT_FORCED_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"0"&"0"&"0"&"0";
-            when SET_STORE_FLAG_STATE  =>  cw <= '0'&'1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"0"&"0"&"0"&"0";
-            when CLEAR_STORE_FLAG_STATE  =>  cw <= '1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"0"&"0"&"0"&"0";
-            when BEGIN_CONVERSION_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"10"&"0"&"0"&"11";
-            when ASSERT_CONVST_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'0'&'0'&'0'&'1'&'0'&'0'&'0'&"0"&"10"&"0"&"0"&"10";
-            when BUSY_0_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"10"&"0"&"0"&"0";
-            when BUSY_1_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&"0"&"10"&"0"&"0"&"0";
-            when READ_CH1_LOW_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when WRITE_CH1_TRIGGER_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when WRITE_CH1_BRAM_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when READ_CH1_HIGH_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when RESET_SHORT_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when READ_CH2_LOW_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when WRITE_CH2_TRIGGER_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when WRITE_CH2_BRAM_STATE  =>  cw <= ''&''&''&''&'1'&''&''&''&''&''&''&''&""&""&""&""&"";
-            when WAIT_SAMPLE_STATE  =>  cw <= ''&''&''&''&''&''&''&''&''&''&''&''&""&""&""&""&"";
-            when BRAM_FULL_STATE  =>  cw <= ''&''&''&''&''&''&''&''&''&''&''&''&""&""&""&""&"";
+            when RESET_STATE  =>  cw <= '1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'1'&"11"&"11"&"00"&"11"&"11";
+            when LONG_DELAY_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"10"&"11";
+            when RESET_AD7606_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'1'&"00"&"00"&"00"&"00"&"10";
+            when WAIT_FORCED_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
+            when SET_STORE_FLAG_STATE  =>  cw <= '0'&'1'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"11"&"00"&"00"&"00"&"00";
+            when CLEAR_STORE_FLAG_STATE  =>  cw <= '1'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
+            when BEGIN_CONVERSION_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"11"&"00"&"00"&"11";
+            when ASSERT_CONVST_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'0'&'1'&'1'&'0'&"00"&"10"&"00"&"00"&"10";
+            when BUSY_0_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"10"&"00"&"00"&"00";
+            when BUSY_1_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"10"&"00"&"00"&"11";
+            when READ_CH1_LOW_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'0'&'0'&'0'&"00"&"10"&"00"&"00"&"10";
+            when WRITE_CH1_TRIGGER_STATE  =>  cw <= '0'&'0'&'0'&'1'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"11";
+            when WRITE_CH1_BRAM_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'1'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"11";
+            when READ_CH1_HIGH_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"10";
+            when RESET_SHORT_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"11";
+            when READ_CH2_LOW_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'0'&'0'&'0'&"00"&"10"&"00"&"00"&"10";
+            when WRITE_CH2_TRIGGER_STATE  =>  cw <= '0'&'0'&'1'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"10"&"10"&"00"&"00"&"11";
+            when WRITE_CH2_BRAM_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&'1'&'1'&'0'&'0'&"10"&"10"&"00"&"00"&"11";
+            when READ_CH2_HIGH_STATE  =>  cw <= '0'&'0'&'0'&'0'&'1'&'1'&'0'&'0'&'1'&'1'&'0'&'0'&"00"&"10"&"00"&"00"&"10";
+            when WAIT_SAMPLE_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'1'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"10"&"00"&"00"&"00";
+--            when BRAM_FULL_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
 
 		end case;
 	end process;	                       

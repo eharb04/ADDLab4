@@ -23,18 +23,18 @@ use IEEE.NUMERIC_STD.ALL;
 
 use work.acquireToHDMI_Package.all;			
 use work.basicBuildingBlocks_package.all;
-use work.signedCompare;
+--use work.signedCompare;
 use work.scopeToHdmi_package.all;
 
 entity acquireToHDMI_datapath is
     PORT ( clk : in  STD_LOGIC;
            resetn : in  STD_LOGIC;
-		   cw : in STD_LOGIC_VECTOR(CW_WIDTH -1 downto 0);
+		   cw : in STD_LOGIC_VECTOR(CW_WIDTH - 1 downto 0);
 		   sw : out STD_LOGIC_VECTOR(DATAPATH_SW_WIDTH - 1 downto 0);
 		   an7606data: in STD_LOGIC_VECTOR(15 downto 0);
 
            triggerVolt16bitSigned: in SIGNED(15 downto 0);
-		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0);
+		   triggerTimePixel: in STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS-1 downto 0); --WHY 10 BITS
 		   ch1Data16bitSLV, ch2Data16bitSLV: out STD_LOGIC_VECTOR(15 downto 0);
 		   
 		   tmdsDataP : out  STD_LOGIC_VECTOR (2 downto 0);
@@ -49,8 +49,8 @@ architecture behavior of acquireToHDMI_datapath is
 
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
     signal videoClk: STD_LOGIC;
-    signal trigVscr: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
-    signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared later
+    signal trigVscr: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal pixelH: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0); -- vsg, sf, pixelV declared below
     signal ch1Wave: STD_LOGIC;
     signal ch2Wave: STD_LOGIC;
     
@@ -72,7 +72,7 @@ architecture behavior of acquireToHDMI_datapath is
     signal SHORT_DELAY_DONE_SW, LONG_DELAY_DONE_SW, SAMPLE_SW, FULL_SW: STD_LOGIC;
     
     signal DATA_STORAGE_CH1_WRITE_CW, DATA_STORAGE_CH2_WRITE_CW: STD_LOGIC_VECTOR(0 downto 0);
-    signal ch1RAMpixelVsigned, ch2RAMpixelVsigned: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal ch1RAMpixelVsigned, ch2RAMpixelVsigned: STD_LOGIC_VECTOR(15 downto 0); --BRAM stores 16 bit values
     signal ch1RAMpixelV, ch2RAMpixelV, pixelV: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
     signal ch1, ch2: STD_LOGIC;
     
@@ -228,7 +228,7 @@ begin
                  
     dataStorageComp: genericCompare
         GENERIC MAP(VIDEO_HEIGHT_IN_BITS)
-        PORT MAP(x => WIDTH,
+        PORT MAP(x => std_logic_vector(resize(unsigned(WIDTH), 10)), --wrAddr and BRAM addr use 10 bits
                  y => wrAddr,
                  g => open,
                  l => open,
@@ -277,7 +277,7 @@ begin
     ch1TriggerCompOld: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch1Data16bitSLVold,
-                 y => triggerVolt16bitSigned,
+                 y => std_logic_vector(triggerVolt16bitSigned), --signedCompare will cast back to SIGNED
                  g => ch1TriggerOld,
                  l => open,
                  e => open
@@ -285,7 +285,7 @@ begin
     ch1TriggerCompNew: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch1Data16bitSLVnew,
-                 y => triggerVolt16bitSigned,
+                 y => std_logic_vector(triggerVolt16bitSigned),
                  g => open,
                  l => ch1TriggerNew,
                  e => open
@@ -303,7 +303,7 @@ begin
     ch1DataNewReg: genericRegister
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
-                resetn => clk,
+                resetn => resetn,
                 load => TRIG_CH1_WRITE,
                 d => ch1Data16bitSLVold,
                 q => ch1Data16bitSLVnew
@@ -320,7 +320,7 @@ begin
     ch2DataNewReg: genericRegister
         GENERIC MAP(16)
         PORT MAP(clk => clk, 
-                resetn => clk,
+                resetn => resetn,
                 load => TRIG_CH2_WRITE,
                 d => ch2Data16bitSLVold,
                 q => ch2Data16bitSLVnew
@@ -329,7 +329,7 @@ begin
     ch2TriggerCompOld: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch2Data16bitSLVold,
-                 y => triggerVolt16bitSigned,
+                 y => std_logic_vector(triggerVolt16bitSigned),
                  g => ch2TriggerOld,
                  l => open,
                  e => open
@@ -337,7 +337,7 @@ begin
     ch2TriggerCompNew: signedCompare
         GENERIC MAP(16)
         PORT MAP(x => ch2Data16bitSLVnew,
-                 y => triggerVolt16bitSigned,
+                 y => std_logic_vector(triggerVolt16bitSigned),
                  g => open,
                  l => ch2TriggerNew,
                  e => open
@@ -394,7 +394,7 @@ begin
                 signed(resize(unsigned(HEIGHT), 16)) * triggerVolt16bitSigned,
                 16
             ) + to_signed(400, 32),
-            11
+            VIDEO_HEIGHT_IN_BITS
         )
     );
 

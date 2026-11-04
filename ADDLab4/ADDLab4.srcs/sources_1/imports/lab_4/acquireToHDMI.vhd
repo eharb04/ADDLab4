@@ -43,11 +43,11 @@ begin
     PORT MAP ( clk => clk,
                resetn => resetn,
                cw => cw,
-               sw => sw,
+               sw => sw(DATAPATH_SW_WIDTH - 1 downto 0),
                an7606data => an7606data,
                
                triggerVolt16bitSigned => (others => '0'),
-               triggerTimePixel => std_logic_vector(to_unsigned(640, 10)),
+               triggerTimePixel => std_logic_vector(to_unsigned(640, 11)),
                ch1Data16bitSLV => open,
                ch2Data16bitSLV => open,
                
@@ -66,25 +66,25 @@ begin
                 cw => cw
               );
 
+    --Send to LED for oscilloscope probing
     conversionPlusReadoutTime <= cw(CONVERSION_PLUS_READOUT_CW_BIT_INDEX);
     sampleTimerRollover <= cw(SAMPLE_TIMER_ROLLOVER_CW_BIT_INDEX);
     
+    --ad7606 communications
     an7606convst <= cw(CONVST_CW_BIT_INDEX);
     an7606cs <= cw(CS_CW_BIT_INDEX);
     an7606rd <= cw(RD_CW_BIT_INDEX);
     an7606reset <= cw(RESET_AD7606_CS_BIT_INDEX);
     an7606od <= "000";
     sw(BUSY_SW_BIT_INDEX) <= an7606busy;
+    
+    --sw sent to external
+    triggerCh1 <= sw(CH1_TRIGGER_SW_BIT_INDEX);
+    triggerCh2 <= sw(CH2_TRIGGER_SW_BIT_INDEX);
 
     ------------------------------------------------------------------------------
     -- Button Process
     ------------------------------------------------------------------------------
-
-    
-    
---    sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= buttonActivity(0);
-    triggerCh1 <= sw(CH1_TRIGGER_SW_BIT_INDEX);
-    triggerCh2 <= sw(CH2_TRIGGER_SW_BIT_INDEX);
     
     -- Pressing PL KEY3(btn(1)) should toggle the oscilloscope between FORCED and TRIGGER mode.
     -- Pressing PL KEY4(btn(0)) when the oscilloscope is in FORCED mode will cause the oscilloscope to trigger and fill its channel 1 and 2 BRAMs.
@@ -100,6 +100,8 @@ begin
                   if (forcedMode = '1') then -- in forcedMode
                       sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= '1'; -- set SINGLE
                   end if;
+                else
+                    sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= '0'; -- reset SINGLE
                 end if;
                 
                 if (btnCurr(1) = '1' and btnPrev(1) = '0') then -- btn release
@@ -110,6 +112,5 @@ begin
 			end if;
 	    end if;
 	end process;
-
 
 end behavior;
