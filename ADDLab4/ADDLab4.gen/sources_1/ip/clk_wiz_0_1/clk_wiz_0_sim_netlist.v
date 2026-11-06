@@ -2,10 +2,10 @@
 // Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
-// Date        : Fri Oct 30 09:41:15 2026
-// Host        : ECO_Laptop running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode funcsim -rename_top clk_wiz_0 -prefix
-//               clk_wiz_0_ clk_wiz_0_sim_netlist.v
+// Date        : Fri Nov  6 11:21:43 2026
+// Host        : Jimmy running 64-bit major release  (build 9200)
+// Command     : write_verilog -force -mode funcsim
+//               c:/Users/harba/Classes/DigitalDesign/lab_4/ADDLab4/ADDLab4.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_sim_netlist.v
 // Design      : clk_wiz_0
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -32,7 +32,7 @@ module clk_wiz_0
   wire locked;
   wire resetn;
 
-  clk_wiz_0_clk_wiz_0_clk_wiz inst
+  clk_wiz_0_clk_wiz inst
        (.clk_in1(clk_in1),
         .clk_out1(clk_out1),
         .clk_out2(clk_out2),
@@ -40,7 +40,7 @@ module clk_wiz_0
         .resetn(resetn));
 endmodule
 
-module clk_wiz_0_clk_wiz_0_clk_wiz
+module clk_wiz_0_clk_wiz
    (clk_out1,
     clk_out2,
     resetn,

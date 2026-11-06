@@ -5,7 +5,7 @@ vlib questa_lib/msim/xil_defaultlib
 
 vmap xil_defaultlib questa_lib/msim/xil_defaultlib
 
-vlog -work xil_defaultlib  -incr -mfcu  "+incdir+../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
+vlog -work xil_defaultlib  -incr -mfcu  "+incdir+../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/encode.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/serdes_10_to_1.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/srldelay.v" \

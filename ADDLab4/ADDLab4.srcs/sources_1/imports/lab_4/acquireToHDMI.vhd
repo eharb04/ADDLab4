@@ -97,10 +97,11 @@ begin
 			if (resetn = '0') then 
 				btnPrev <= "111";
 				btnCurr <= "111";
-				forcedMode <= '0'; -- reset to TRIGGER mode
---		    elsif (forcedMode /= '0' and forcedMode /= '1') then --to always set forcedMode, not dependent on resetn on pos clk edge
---		        forcedMode <= '0'; 
+				forcedMode <= '1'; -- reset to FORCED mode
 		    else
+		        --drive btn
+                btnCurr <= btn;
+		    
                 if (btnCurr(0) = '1' and btnPrev(0) = '0') then -- btn release
                   if (forcedMode = '1') then -- in forcedMode
                       sw(SINGLE_TRIGGER_SW_BIT_INDEX) <= '1'; -- set SINGLE

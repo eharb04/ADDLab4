@@ -2,8 +2,8 @@
 // Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
-// Date        : Fri Oct 30 09:44:22 2026
-// Host        : ECO_Laptop running 64-bit major release  (build 9200)
+// Date        : Fri Nov  6 11:24:27 2026
+// Host        : Jimmy running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub -rename_top hdmi_tx_0 -prefix
 //               hdmi_tx_0_ hdmi_tx_0_stub.v
 // Design      : hdmi_tx_0

@@ -5,7 +5,7 @@ vlib questa_lib/msim/xil_defaultlib
 
 vmap xil_defaultlib questa_lib/msim/xil_defaultlib
 
-vlog -work xil_defaultlib  -incr -mfcu  "+incdir+../../../ipstatic" "+incdir+../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
+vlog -work xil_defaultlib  -incr -mfcu  "+incdir+../../../ipstatic" "+incdir+../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
 "../../../../ADDLab4.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_clk_wiz.v" \
 "../../../../ADDLab4.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0.v" \
 

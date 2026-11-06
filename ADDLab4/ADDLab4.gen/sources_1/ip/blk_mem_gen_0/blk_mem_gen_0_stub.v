@@ -2,10 +2,10 @@
 // Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
-// Date        : Fri Oct 30 11:19:25 2026
-// Host        : ECO_Laptop running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub -rename_top blk_mem_gen_0 -prefix
-//               blk_mem_gen_0_ blk_mem_gen_0_stub.v
+// Date        : Fri Nov  6 11:23:15 2026
+// Host        : Jimmy running 64-bit major release  (build 9200)
+// Command     : write_verilog -force -mode synth_stub
+//               c:/Users/harba/Classes/DigitalDesign/lab_4/ADDLab4/ADDLab4.gen/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0_stub.v
 // Design      : blk_mem_gen_0
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7z010clg400-1

@@ -1,4 +1,4 @@
-verilog xil_defaultlib -i "../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
+verilog xil_defaultlib -i "../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/encode.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/serdes_10_to_1.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/srldelay.v" \
