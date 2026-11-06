@@ -81,6 +81,9 @@ begin
     --sw sent to external
     triggerCh1 <= sw(CH1_TRIGGER_SW_BIT_INDEX);
     triggerCh2 <= sw(CH2_TRIGGER_SW_BIT_INDEX);
+    
+    --set forcedMode
+    sw(FORCED_MODE_SW_BIT_INDEX) <= forcedMode;
 
     ------------------------------------------------------------------------------
     -- Button Process
@@ -95,6 +98,8 @@ begin
 				btnPrev <= "111";
 				btnCurr <= "111";
 				forcedMode <= '0'; -- reset to TRIGGER mode
+--		    elsif (forcedMode /= '0' and forcedMode /= '1') then --to always set forcedMode, not dependent on resetn on pos clk edge
+--		        forcedMode <= '0'; 
 		    else
                 if (btnCurr(0) = '1' and btnPrev(0) = '0') then -- btn release
                   if (forcedMode = '1') then -- in forcedMode
