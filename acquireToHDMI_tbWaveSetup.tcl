@@ -30,8 +30,9 @@ set COUNT_ID [add_wave_group "Counters"]
 # Add sample rate counter
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/shortCount
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/longCount
-add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/longCounter/q
+# add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/longCounter/q
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/sampleCount
+add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/dataStorageCounter/q
 
 set groupColor ORANGE
 set AD7606_ID [add_wave_group "AD7606 Interface"]
