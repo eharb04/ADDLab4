@@ -96,7 +96,7 @@ begin
                   blue => blue,
                   ch1 => ch1Wave,
                   ch1Enb => '1',
-                  ch2 => ch1Wave,
+                  ch2 => ch2Wave,
                   ch2Enb => '1');
 
     hdmi_inst: hdmi_tx_0
@@ -368,7 +368,7 @@ begin
     
     -- Set output vectors
     ch1Data16BitSLV <= ch1Data16BitSLVold;
-    ch2Data16BitSLV <= ch1Data16BitSLVold;
+    ch2Data16BitSLV <= ch2Data16BitSLVold;
     
     -- trigger sw AND gate
     sw(CH1_TRIGGER_SW_BIT_INDEX) <= ch1TriggerOld and ch1TriggerNew;
@@ -387,6 +387,12 @@ begin
     sw(SAMPLE_DELAY_DONE_SW_BIT_INDEX) <= SAMPLE_SW;
     sw(BRAM_FULL_SW_BIT_INDEX) <= FULL_SW;
     
+    -- set cw bits
+    SHORT_DELAY_COUNTER_CW  <= cw(SHORT_DELAY_COUNTER_CW_BIT_INDEX + 1 downto SHORT_DELAY_COUNTER_CW_BIT_INDEX);
+    LONG_DELAY_COUNTER_CW   <= cw(LONG_DELAY_COUNTER_CW_BIT_INDEX + 1 downto LONG_DELAY_COUNTER_CW_BIT_INDEX);
+    SAMPLING_COUNTER_CW     <= cw(SAMPLING_COUNTER_INDEX + 1 downto SAMPLING_COUNTER_INDEX);
+    DATA_STORAGE_COUNTER_CW <= cw(DATA_STORAGE_COUNTER_CW_BIT_INDEX + 1 downto DATA_STORAGE_COUNTER_CW_BIT_INDEX);
+    SAMPLING_RATE_SELECT_CW <= cw(SAMPLING_RATE_SELECT_CW_BIT_INDEX + 1 downto SAMPLING_RATE_SELECT_CW_BIT_INDEX);
     -- SgnToPixel
     trigVscr <= std_logic_vector(
         resize(
