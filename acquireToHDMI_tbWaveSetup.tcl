@@ -11,6 +11,7 @@ add_wave  -color green /acquireToHDMI_tb/uut/clk
 add_wave  -color green /acquireToHDMI_tb/uut/resetn
 add_wave  -color green /acquireToHDMI_tb/uut/dp/videoClk
 
+
 set groupColor YELLOW
 set TOP_ID [add_wave_group "topLevelIO"]
 add_wave -into $TOP_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/btn
@@ -29,6 +30,7 @@ set COUNT_ID [add_wave_group "Counters"]
 # Add sample rate counter
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/shortCount
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/longCount
+add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/longCounter/q
 add_wave -into $COUNT_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut/dp/sampleCount
 
 set groupColor ORANGE
@@ -78,11 +80,18 @@ add_wave -into $SW_ID -color $groupColor -name "FORCED MODE"		/acquireToHDMI_tb/
 set groupColor LIME
 set CW_ID [add_wave_group "Control Word"]
 
-add_wave -into $CW_ID -color $groupColor -name "SHORT DELAY COUNTER" /acquireToHDMI_tb/uut/cw[0:1]
-add_wave -into $CW_ID -color $groupColor -name "LONG DELAY COUNTER" /acquireToHDMI_tb/uut/cw[2:3]
-add_wave -into $CW_ID -color $groupColor -name "SAMPLING RATE SELECT" /acquireToHDMI_tb/uut/cw[4:5]
-add_wave -into $CW_ID -color $groupColor -name "SAMPLING COUNTER" /acquireToHDMI_tb/uut/cw[6:7]
-add_wave -into $CW_ID -color $groupColor -name "DATA STORAGE COUNTER" /acquireToHDMI_tb/uut/cw[8:9]
+add_wave -into $CW_ID -color $groupColor -name "CW DP" /acquireToHDMI_tb/uut/dp/cw
+add_wave -into $CW_ID -color $groupColor -name "SHORT DELAY COUNTER0" /acquireToHDMI_tb/uut/cw[0]
+add_wave -into $CW_ID -color $groupColor -name "SHORT DELAY COUNTER1" /acquireToHDMI_tb/uut/cw[1]
+add_wave -into $CW_ID -color $groupColor -name "LONG DELAY DP" /acquireToHDMI_tb/uut/dp/LONG_DELAY_COUNTER_CW
+add_wave -into $CW_ID -color $groupColor -name "LONG DELAY COUNTER0" /acquireToHDMI_tb/uut/cw[2]
+add_wave -into $CW_ID -color $groupColor -name "LONG DELAY COUNTER1" /acquireToHDMI_tb/uut/cw[3]
+add_wave -into $CW_ID -color $groupColor -name "SAMPLING RATE SELECT0" /acquireToHDMI_tb/uut/cw[4]
+add_wave -into $CW_ID -color $groupColor -name "SAMPLING RATE SELECT1" /acquireToHDMI_tb/uut/cw[5]
+add_wave -into $CW_ID -color $groupColor -name "SAMPLING COUNTER0" /acquireToHDMI_tb/uut/cw[6]
+add_wave -into $CW_ID -color $groupColor -name "SAMPLING COUNTER1" /acquireToHDMI_tb/uut/cw[7]
+add_wave -into $CW_ID -color $groupColor -name "DATA STORAGE COUNTER0" /acquireToHDMI_tb/uut/cw[8]
+add_wave -into $CW_ID -color $groupColor -name "DATA STORAGE COUNTER1" /acquireToHDMI_tb/uut/cw[9]
 add_wave -into $CW_ID -color $groupColor -name "RESET AD7606 CS" /acquireToHDMI_tb/uut/cw[10]
 add_wave -into $CW_ID -color $groupColor -name "CS" /acquireToHDMI_tb/uut/cw[11]
 add_wave -into $CW_ID -color $groupColor -name "RD" /acquireToHDMI_tb/uut/cw[12]
