@@ -25,7 +25,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='C:/Users/ethan/Desktop/ADD/Labs/ADDLab4/ADDLab4/ADDLab4.runs/clk_wiz_0_synth_1'
+HD_PWD='C:/Users/harba/Classes/DigitalDesign/lab_4/ADDLab4/ADDLab4.runs/clk_wiz_0_synth_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log

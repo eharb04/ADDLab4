@@ -184,10 +184,10 @@ begin
                  
     sampleMux: genericMux4x1
         GENERIC MAP(32)
-        PORT MAP(y0 => SLOWEST_RATE,
-                 y1 => SLOW_RATE,
-                 y2 => FAST_RATE,
-                 y3 => FASTEST_RATE,
+        PORT MAP(y0 => FASTEST_RATE,
+                 y1 => FAST_RATE,
+                 y2 => SLOW_RATE,
+                 y3 => SLOWEST_RATE,
                  s => SAMPLING_RATE_SELECT_CW,
                  f => samplePeriod
                  );
@@ -376,6 +376,9 @@ begin
 
     -- STORE flag set
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
+    
+    -- set active high reset for hdmi
+    reset <= not resetn;
     
     -- set BRAM wea cw bit
     DATA_STORAGE_CH1_WRITE_CW(0) <= cw(DATA_STORAGE_CH1_WRITE_CW_BIT_INDEX);

@@ -8,7 +8,7 @@ vlib riviera/xil_defaultlib
 
 vmap xil_defaultlib riviera/xil_defaultlib
 
-vlog -work xil_defaultlib  -incr -v2k5 "+incdir+../../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" -l xil_defaultlib \
+vlog -work xil_defaultlib  -incr -v2k5 "+incdir+../../../../../../../../../../AMDDesignTools/2026.1/Vivado/data/rsb/busdef" -l xil_defaultlib \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/encode.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/serdes_10_to_1.v" \
 "../../../../ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdl/srldelay.v" \
