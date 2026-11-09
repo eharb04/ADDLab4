@@ -163,4 +163,28 @@ component twosToPixel is
     );
 end component twosToPixel;
 
+COMPONENT ila_0
+
+PORT (
+	clk : IN STD_LOGIC;
+
+
+
+	probe0 : IN STD_LOGIC_VECTOR(4 DOWNTO 0); 
+	probe1 : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+	probe2 : IN STD_LOGIC_VECTOR(0 DOWNTO 0)
+);
+END COMPONENT  ;
+
+COMPONENT ila_1
+
+PORT (
+	clk : IN STD_LOGIC;
+
+
+
+	probe0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
+);
+END COMPONENT  ;
+
 end package;
