@@ -12,8 +12,8 @@ entity scopeFace is
     PORT ( 	clk: in  STD_LOGIC;
          resetn : in  STD_LOGIC;
          pixelHorz : in  STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
-         pixelVert : in  STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS -1 downto 0);
-         triggerVolt: in STD_LOGIC_VECTOR (VIDEO_WIDTH_IN_BITS - 1 downto 0);
+         pixelVert : in  STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS -1 downto 0);
+         triggerVolt: in STD_LOGIC_VECTOR (VIDEO_HEIGHT_IN_BITS - 1 downto 0);
          triggerTime: in STD_LOGIC_VECTOR (VIDEO_WIDTH_IN_BITS - 1 downto 0);
          red : out  STD_LOGIC_VECTOR(7 downto 0);
          green : out  STD_LOGIC_VECTOR(7 downto 0);
