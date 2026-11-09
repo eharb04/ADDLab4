@@ -185,14 +185,14 @@ begin
                  q => sampleCount
                  );
                  
-    your_instance_name : ila_1
-    PORT MAP (
-        clk => clk,
+--    your_instance_name : ila_1
+--    PORT MAP (
+--        clk => clk,
     
     
     
-        probe0 => sampleCount
-    );
+--        probe0 => sampleCount
+--    );
                  
     sampleMux: genericMux4x1
         GENERIC MAP(32)
