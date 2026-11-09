@@ -68,6 +68,9 @@ add_wave -into $HDMI_ID -color $groupColor -radix unsigned /acquireToHDMI_tb/uut
 add_wave -into $HDMI_ID -color red -radix unsigned /acquireToHDMI_tb/uut/dp/red
 add_wave -into $HDMI_ID -color green -radix unsigned /acquireToHDMI_tb/uut/dp/green
 add_wave -into $HDMI_ID -color blue -radix unsigned /acquireToHDMI_tb/uut/dp/blue
+add_wave -into $HDMI_ID -color blue -radix unsigned /acquireToHDMI_tb/uut/dp/sf/ch1
+add_wave -into $HDMI_ID -color blue -radix unsigned /acquireToHDMI_tb/uut/dp/sf/ch2
+
 
 set groupColor MAROON
 set SW_ID [add_wave_group "Status Word"]

@@ -265,7 +265,7 @@ begin
                  y => pixelV,
                  g => open,
                  l => open,
-                 e => ch1
+                 e => ch1Wave
                  );
                  
     ch2PixelComp: genericCompare
@@ -274,7 +274,7 @@ begin
                  y => pixelV,
                  g => open,
                  l => open,
-                 e => ch2
+                 e => ch2Wave
                  );
     ch1TriggerCompOld: signedCompare
         GENERIC MAP(16)
