@@ -83,6 +83,8 @@ architecture behavior of acquireToHDMI_datapath is
     
     signal ch1TriggerOld, ch1TriggerNew, ch2TriggerOld, ch2TriggerNew: STD_LOGIC;
     
+    signal pixelHMinusLEdge: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 2 downto 0); --addrb wants 10 bits
+    
 begin
     sf: scopeFace
         PORT MAP (clk => videoClk,
@@ -139,7 +141,7 @@ begin
                   dina => an7606data,
                   clkb => videoClk,
                   enb => '1',
-                  addrb => HEIGHT, --????
+                  addrb => pixelHMinusLEdge, --????
                   doutb => ch1RAMpixelVsigned
                   );
                   
@@ -151,7 +153,7 @@ begin
                   dina => an7606data,
                   clkb => videoClk,
                   enb => '1',
-                  addrb => HEIGHT, --?????
+                  addrb => pixelHMinusLEdge, --?????
                   doutb => ch2RAMpixelVsigned
                   );
                   
@@ -263,7 +265,7 @@ begin
                  y => pixelV,
                  g => open,
                  l => open,
-                 e => ch1
+                 e => ch1Wave
                  );
                  
     ch2PixelComp: genericCompare
@@ -272,7 +274,7 @@ begin
                  y => pixelV,
                  g => open,
                  l => open,
-                 e => ch2
+                 e => ch2Wave
                  );
     ch1TriggerCompOld: signedCompare
         GENERIC MAP(16)
@@ -366,6 +368,9 @@ begin
         end if;
     end process;
     
+    --addrb signal
+    pixelHMinusLEdge <= std_logic_vector(resize(unsigned(pixelH) - unsigned(L_EDGE), 10));
+    
     -- Set output vectors
     ch1Data16BitSLV <= ch1Data16BitSLVold;
     ch2Data16BitSLV <= ch2Data16BitSLVold;
@@ -373,12 +378,19 @@ begin
     -- trigger sw AND gate
     sw(CH1_TRIGGER_SW_BIT_INDEX) <= ch1TriggerOld and ch1TriggerNew;
     sw(CH2_TRIGGER_SW_BIT_INDEX) <= ch2TriggerOld and ch2TriggerNew;
+    
+    --write to registers
+    TRIG_CH1_WRITE <= cw(TRIG_CH1_WRITE_CW_BIT_INDEX);
+    TRIG_CH2_WRITE <= cw(TRIG_CH2_WRITE_CW_BIT_INDEX);
 
     -- STORE flag set
     sw(STORE_INTO_BRAM_SW_BIT_INDEX) <= storeIntoBramFlag;
     
     -- set active high reset for hdmi
     reset <= not resetn;
+    
+    --set hdmiOen to 1
+    hdmiOen <= '1';
     
     -- set BRAM wea cw bit
     DATA_STORAGE_CH1_WRITE_CW(0) <= cw(DATA_STORAGE_CH1_WRITE_CW_BIT_INDEX);

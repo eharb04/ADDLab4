@@ -23,8 +23,8 @@ architecture structure of scopeToHdmi is
 
     signal red, green, blue: STD_LOGIC_VECTOR(7 downto 0);
 
-    signal triggerTime, pixelHorz: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
-    signal triggerVolt, pixelVert: STD_LOGIC_VECTOR(VIDEO_HEIGHT_IN_BITS - 1 downto 0);
+    signal triggerTime, triggerVolt: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
+    signal pixelHorz, pixelVert: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 1 downto 0);
 	    
     signal ch1Wave, ch2Wave: STD_LOGIC;
 
