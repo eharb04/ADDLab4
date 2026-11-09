@@ -82,6 +82,7 @@ architecture behavior of acquireToHDMI_datapath is
     signal storeIntoBramFlag: STD_LOGIC;
     
     signal ch1TriggerOld, ch1TriggerNew, ch2TriggerOld, ch2TriggerNew: STD_LOGIC;
+    signal pixelV11bit: STD_LOGIC_VECTOR(10 downto 0);
     
     signal pixelHMinusLEdge: STD_LOGIC_VECTOR(VIDEO_WIDTH_IN_BITS - 2 downto 0); --addrb wants 10 bits
     
@@ -130,7 +131,7 @@ begin
                   vs => vs,
                   de => de,
                   pixelHorz => pixelH,
-                  pixelVert => pixelV
+                  pixelVert => pixelV11bit
                   );
                   
     ch1BRAM : blk_mem_gen_0
@@ -388,6 +389,9 @@ begin
     
     -- set active high reset for hdmi
     reset <= not resetn;
+    
+    --cut pixelV to 10 bits
+    pixelV <= pixelV11bit(9 downto 0);
     
     --set hdmiOen to 1
     hdmiOen <= '1';
