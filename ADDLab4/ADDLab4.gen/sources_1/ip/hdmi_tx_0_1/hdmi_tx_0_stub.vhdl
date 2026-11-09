@@ -2,10 +2,10 @@
 -- Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
--- Date        : Fri Nov  6 11:24:27 2026
+-- Date        : Mon Nov  9 11:05:18 2026
 -- Host        : Jimmy running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub -rename_top hdmi_tx_0 -prefix
---               hdmi_tx_0_ hdmi_tx_0_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub
+--               c:/Users/harba/Classes/DigitalDesign/lab_4/ADDLab4/ADDLab4.gen/sources_1/ip/hdmi_tx_0_1/hdmi_tx_0_stub.vhdl
 -- Design      : hdmi_tx_0
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7z010clg400-1

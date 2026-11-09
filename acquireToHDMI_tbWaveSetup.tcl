@@ -25,6 +25,7 @@ add_wave -into $TOP_ID -color $groupColor /acquireToHDMI_tb/uut/sampleTimerRollo
 
 add_wave  -color green /acquireToHDMI_tb/uut/btnPrev
 add_wave  -color green /acquireToHDMI_tb/uut/btnCurr
+add_wave  -color green /acquireToHDMI_tb/uut/dp/ch1
 
 add_wave   -color aqua /acquireToHDMI_tb/uut/cu/state
 
