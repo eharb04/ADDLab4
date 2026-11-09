@@ -20,7 +20,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use work.acquireToHDMI_package.all;					-- include your library here with added components ac97, ac97cmd
-
+use IEEE.NUMERIC_STD.all;
 
 entity acquireToHDMI_fsm is
     PORT (  clk : in  STD_LOGIC;
@@ -40,6 +40,8 @@ architecture Behavioral of acquireToHDMI_fsm is
     signal SINGLE_TRIGGER_SW: STD_LOGIC;
     signal BUSY_SW: STD_LOGIC;
     signal FORCED_MODE_SW: STD_LOGIC;
+    signal rstn_int : std_logic_vector(0 downto 0);
+    signal state_int : std_logic_vector(4 downto 0);
 begin
     
     
@@ -211,7 +213,20 @@ begin
 -- when BRAM_FULL_STATE  =>  cw <= '0'&'0'&'0'&'0'&'0'&'0'&'0'&'0'&'1'&'1'&'1'&'0'&"00"&"00"&"00"&"00"&"00";
 
 		end case;
-	end process;	                       
+	end process;	        
+	
+	state_int <= std_logic_vector(to_unsigned(state_type'pos(state), 5));               
+	rstn_int(0) <= resetn;
+	your_instance_name : ila_0
+    PORT MAP (
+        clk => clk,
+    
+    
+    
+        probe0 => state_int, 
+        probe1 => sw,
+        probe2 => rstn_int
+    );
 
 end Behavioral;
 

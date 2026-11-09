@@ -185,6 +185,15 @@ begin
                  q => sampleCount
                  );
                  
+    your_instance_name : ila_1
+    PORT MAP (
+        clk => clk,
+    
+    
+    
+        probe0 => sampleCount
+    );
+                 
     sampleMux: genericMux4x1
         GENERIC MAP(32)
         PORT MAP(y0 => FASTEST_RATE,
